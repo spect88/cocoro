@@ -26,3 +26,4 @@ Metrics/ModuleLength:
 Metrics/BlockLength:
   Exclude:
   - spec/**/*_spec.rb
+  - cocoro.gemspec

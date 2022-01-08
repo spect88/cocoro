@@ -11,8 +11,29 @@ module Cocoro
     :echonet_node,
     :echonet_object,
     :name,
+    :type,
+    :maker,
+    :model,
     keyword_init: true
   ) do
+    def self.parse_box_info(box_info, client)
+      box_info.flat_map do |box|
+        box["echonetData"].map do |data|
+          new(
+            client: client,
+            box_id: box["boxId"],
+            device_id: data["deviceId"],
+            echonet_node: data["echonetNode"],
+            echonet_object: data["echonetObject"],
+            name: data["labelData"]["name"],
+            type: data["labelData"]["deviceType"],
+            maker: data["maker"],
+            model: data["model"]
+          )
+        end
+      end
+    end
+
     def status
       @status || fetch_status!
     end

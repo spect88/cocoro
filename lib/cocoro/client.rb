@@ -68,19 +68,7 @@ module Cocoro
           "setting/boxInfo?appSecret=#{CGI.escape(@app_secret)}&mode=other"
         )
       end
-      json = response.body
-      json["box"].flat_map do |box|
-        box["echonetData"].map do |data|
-          Cocoro::Device.new(
-            client: self,
-            box_id: box["boxId"],
-            device_id: data["deviceId"],
-            echonet_node: data["echonetNode"],
-            echonet_object: data["echonetObject"],
-            name: data["labelData"]["name"]
-          )
-        end
-      end
+      Cocoro::Device.parse_box_info(response.body["box"], self)
     end
 
     def device_status(device:)

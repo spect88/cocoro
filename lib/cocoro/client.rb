@@ -27,6 +27,8 @@ module Cocoro
     DEFAULT_RESULT_CHECK_INTERVAL = 0.7 # seconds
     DEFAULT_RESULT_CHECK_MAX_ATTEMPTS = 20
 
+    attr_accessor :logger
+
     def initialize(app_secret:, terminal_app_id_key:, logger: nil)
       @app_secret = app_secret
       @terminal_app_id_key = terminal_app_id_key

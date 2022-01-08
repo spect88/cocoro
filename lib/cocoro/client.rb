@@ -58,12 +58,16 @@ module Cocoro
         body,
         {}
       )
+    rescue Faraday::Error
+      raise Cocoro::ServerError
     end
 
     def devices
-      response = @client.get(
-        "setting/boxInfo?appSecret=#{CGI.escape(@app_secret)}&mode=other"
-      )
+      response = handle_server_errors do
+        @client.get(
+          "setting/boxInfo?appSecret=#{CGI.escape(@app_secret)}&mode=other"
+        )
+      end
       json = response.body
       json["box"].flat_map do |box|
         box["echonetData"].map do |data|
@@ -86,9 +90,11 @@ module Cocoro
         echonetNode: device.echonet_node,
         echonetObject: device.echonet_object
       }.map { |k, v| [k, CGI.escape(v)].join("=") }
-      response = @client.get(
-        "control/deviceStatus?#{query_params.join("&")}"
-      )
+      response = handle_server_errors do
+        @client.get(
+          "control/deviceStatus?#{query_params.join("&")}"
+        )
+      end
       json = response.body
       Cocoro::Status.new(json["deviceStatus"]["status"])
     end
@@ -120,17 +126,19 @@ module Cocoro
         appSecret: @app_secret,
         boxId: device.box_id
       }.map { |k, v| [k, CGI.escape(v)].join("=") }
-      response = @client.post(
-        "control/deviceControl?#{query_params.join("&")}",
-        controlList: [
-          {
-            deviceId: device.device_id,
-            echonetNode: device.echonet_node,
-            echonetObject: device.echonet_object,
-            status: changes
-          }
-        ]
-      )
+      response = handle_server_errors do
+        @client.post(
+          "control/deviceControl?#{query_params.join("&")}",
+          controlList: [
+            {
+              deviceId: device.device_id,
+              echonetNode: device.echonet_node,
+              echonetObject: device.echonet_object,
+              status: changes
+            }
+          ]
+        )
+      end
       response.body["controlList"].first["id"]
     end
 
@@ -139,15 +147,25 @@ module Cocoro
         appSecret: @app_secret,
         boxId: device.box_id
       }.map { |k, v| [k, CGI.escape(v)].join("=") }
-      response = @client.post(
-        "control/controlResult?#{query_params.join("&")}",
-        resultList: [{ id: request_id }]
-      )
+      response = handle_server_errors do
+        @client.post(
+          "control/controlResult?#{query_params.join("&")}",
+          resultList: [{ id: request_id }]
+        )
+      end
       result = response.body["resultList"].first
       @logger.info("Status: #{result["status"]}")
       raise Cocoro::Error, "Error code: #{result["errorCode"]}" if result["status"] == "error"
 
       result
+    end
+
+    def handle_server_errors(&block)
+      block.call
+    rescue Faraday::UnauthorizedError, Faraday::ForbiddenError
+      raise Cocoro::AuthError
+    rescue Faraday::Error
+      raise Cocoro::ServerError
     end
   end
 end

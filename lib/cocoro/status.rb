@@ -11,9 +11,9 @@ module Cocoro
       total_air_cleaned: ["F1", 22, 4], # m^3
       pm25: ["F1", 28, 2], # ug/m^3 : sometimes weird values because of the first byte
       f2unknown1: ["F2", 1, 1],
-      smell: ["F2", 15, 1], # 0/33/66/100 (100=dirty)
+      odor: ["F2", 15, 1], # 0/33/66/100 (100=dirty)
       dust: ["F2", 16, 1], # 0/25/50/75/100 (100=dirty)
-      overall_cleanliness: ["F2", 18, 1], # 0/25/50/75/100 (100=dirty)
+      overall_dirtiness: ["F2", 18, 1], # 0/25/50/75/100 (100=dirty)
       f2unknown19: ["F2", 19, 1],
       enough_water: ["F2", 20, 1],
       light_detected: ["F2", 21, 1],
@@ -41,7 +41,7 @@ module Cocoro
 
     BOOLEAN_FIELDS = %i[enough_water light_detected power_on humidifier_on].freeze
     NON_BOOLEAN_FIELDS = %i[
-      temperature humidity total_air_cleaned pm25 smell dust overall_cleanliness air_volume
+      temperature humidity total_air_cleaned pm25 odor dust overall_dirtiness air_volume
     ].freeze
 
     def initialize(array_of_status_data)

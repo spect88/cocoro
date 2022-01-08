@@ -49,9 +49,9 @@ RSpec.describe Cocoro::Status do
   its(:humidity) { is_expected.to eq(48) }
   its(:total_air_cleaned) { is_expected.to eq(13_418) }
   its(:pm25) { is_expected.to eq(0) }
-  its(:smell) { is_expected.to eq(0) }
+  its(:odor) { is_expected.to eq(0) }
   its(:dust) { is_expected.to eq(0) }
-  its(:overall_cleanliness) { is_expected.to eq(0) }
+  its(:overall_dirtiness) { is_expected.to eq(0) }
   its(:air_volume) { is_expected.to eq("quiet") }
 
   its(:to_h) { is_expected.to include(:power_on, :pm25, :air_volume, :f1) }
